@@ -38,7 +38,7 @@ runs:
         --format sarif --output "$INPUT_REPORT_FILE" --fail-on "$INPUT_FAIL_ON"
     - name: Upload SARIF report artifact
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: mod-threat-lens-report
         path: ${{ inputs.report-file }}

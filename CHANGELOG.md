@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - 2026-10-11
+
+- Update checkout, setup-python, and upload-artifact references to supported v7 majors.
+- Bump package, SARIF, and Action example to v0.1.3.
+
 ## 0.1.2 - 2026-10-11
 
 - Remove the empty Gumroad storefront CTA until a real paid product is available.

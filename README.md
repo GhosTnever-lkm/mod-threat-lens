@@ -65,8 +65,8 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.2
+      - uses: actions/checkout@v7
+      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.3
         with:
           scan-path: ./
           fail-on: high
