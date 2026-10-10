@@ -74,6 +74,11 @@ class ScannerTests(unittest.TestCase):
             document = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(document["runs"][0]["results"][0]["ruleId"], "MTL001")
 
+    def test_sarif_tool_version_matches_package(self):
+        from mod_threat_lens import __version__
+        document = json.loads(sarif_report([]))
+        self.assertEqual(document["runs"][0]["tool"]["driver"]["version"], __version__)
+
     def test_scan_limits_are_validated(self):
         with tempfile.TemporaryDirectory() as tmp:
             result = main(["scan", tmp, "--max-files", "0"])

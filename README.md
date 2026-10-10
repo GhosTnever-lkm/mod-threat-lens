@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.0
+      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.1
         with:
           scan-path: ./
           fail-on: high
@@ -107,5 +107,9 @@ python -m unittest discover -s tests -v
 python -m compileall -q src tests
 PYTHONPATH=src python -m mod_threat_lens scan examples/fixture-mod --format json --fail-on none
 ```
+
+## ☕ Support / Pro Version
+
+Mod Threat Lens is free and open source; there is no paid Pro edition yet. If it is useful, support development on [Buy Me a Coffee](https://buymeacoffee.com/azizazimov8) or visit the [Gumroad store](https://azimovian22.gumroad.com/).
 
 See [CHANGELOG.md](CHANGELOG.md) for releases. Licensed under MIT; see [LICENSE](LICENSE).

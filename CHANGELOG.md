@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 — 2026-10-11
+
+- Add verified Buy Me a Coffee and Gumroad support links; clarify that the free core has no paid Pro edition yet.
+- Update the GitHub Action example to v0.1.1.
+- Keep the SARIF tool version aligned with the package version.
+
 ## 0.1.0 — 2026-10-11
 
 - Initial release of a local-first heuristic security triage CLI for game mods.
