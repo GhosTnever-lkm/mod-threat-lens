@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 - 2026-10-11
+
+- Remove the empty Gumroad storefront CTA until a real paid product is available.
+- Synchronize package, SARIF, CLI, Action example, and version metadata at v0.1.2.
+
 ## 0.1.1 — 2026-10-11
 
 - Add verified Buy Me a Coffee and Gumroad support links; clarify that the free core has no paid Pro edition yet.

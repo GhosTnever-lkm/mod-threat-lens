@@ -64,6 +64,6 @@ def sarif_report(findings: list[Finding]) -> str:
         results.append({"ruleId": item.rule_id, "level": level, "message": {"text": item.message},
                         "locations": [{"physicalLocation": physical}]})
     payload = {"$schema": "https://json.schemastore.org/sarif-2.1.0.json", "version": "2.1.0",
-               "runs": [{"tool": {"driver": {"name": "Mod Threat Lens", "version": "0.1.1", "rules": descriptors}},
+               "runs": [{"tool": {"driver": {"name": "Mod Threat Lens", "version": "0.1.2", "rules": descriptors}},
                          "originalUriBaseIds": {"%SRCROOT%": {"uri": "./"}}, "results": results}]}
     return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
