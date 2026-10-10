@@ -1,0 +1,45 @@
+name: Mod Threat Lens
+description: Heuristic security triage for game mods and mod archives.
+author: GhosTnever
+inputs:
+  scan-path:
+    description: Folder, file, or ZIP archive to scan.
+    required: false
+    default: .
+  fail-on:
+    description: Fail when a finding reaches this severity (none, low, medium, high, critical).
+    required: false
+    default: high
+  report-file:
+    description: SARIF report path relative to the workspace.
+    required: false
+    default: mod-threat-lens.sarif
+outputs:
+  report-file:
+    description: Path to the generated SARIF report.
+    value: ${{ steps.report.outputs.path }}
+runs:
+  using: composite
+  steps:
+    - id: report
+      shell: bash
+      env:
+        INPUT_REPORT_FILE: ${{ inputs.report-file }}
+      run: echo "path=$INPUT_REPORT_FILE" >> "$GITHUB_OUTPUT"
+    - name: Scan mod files
+      shell: bash
+      env:
+        PYTHONPATH: ${{ github.action_path }}/src
+        INPUT_SCAN_PATH: ${{ inputs.scan-path }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_REPORT_FILE: ${{ inputs.report-file }}
+      run: >-
+        python -m mod_threat_lens scan "$INPUT_SCAN_PATH"
+        --format sarif --output "$INPUT_REPORT_FILE" --fail-on "$INPUT_FAIL_ON"
+    - name: Upload SARIF report artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: mod-threat-lens-report
+        path: ${{ inputs.report-file }}
+        if-no-files-found: warn
