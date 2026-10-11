@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.7 - 2026-10-11
+
+- CI now also runs the test suite on Windows (windows-latest), not only Ubuntu.
+
+
 ## 0.1.6 - 2026-10-11
 
 - Escape Unicode line and paragraph separators as visible sequences in text and Markdown reports.
