@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import os
 import tempfile
 import unittest
 import zipfile
@@ -76,6 +77,7 @@ class ScannerTests(unittest.TestCase):
             document = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(document["runs"][0]["results"][0]["ruleId"], "MTL001")
 
+    @unittest.skipIf(os.name == "nt", "Windows forbids control characters in file names")
     def test_text_report_escapes_terminal_controls_in_filenames(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "mod"
