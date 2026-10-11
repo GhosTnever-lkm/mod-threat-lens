@@ -1,3 +1,5 @@
+import contextlib
+import io
 import json
 import tempfile
 import unittest
@@ -5,8 +7,8 @@ import zipfile
 from pathlib import Path
 
 from mod_threat_lens.cli import main
-from mod_threat_lens.formats import json_report, sarif_report
-from mod_threat_lens.scanner import ScanConfig, scan
+from mod_threat_lens.formats import json_report, markdown_report, sarif_report
+from mod_threat_lens.scanner import Finding, ScanConfig, scan
 
 
 class ScannerTests(unittest.TestCase):
@@ -73,6 +75,33 @@ class ScannerTests(unittest.TestCase):
             self.assertEqual(result, 1)
             document = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(document["runs"][0]["results"][0]["ruleId"], "MTL001")
+
+    def test_text_report_escapes_terminal_controls_in_filenames(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "mod"
+            root.mkdir()
+            (root / "README.md").write_text("safe", encoding="utf-8")
+            (root / "evil\n\x1b[31m.lua").write_text("os.execute('synthetic')", encoding="utf-8")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                result = main(["scan", str(root), "--fail-on", "none"])
+        text = output.getvalue()
+        self.assertEqual(result, 0)
+        self.assertNotIn("\x1b", text)
+        self.assertIn(r"evil\n\x1b[31m.lua", text)
+        self.assertEqual(text.count("[HIGH]"), 1)
+
+    def test_markdown_report_keeps_control_filename_inside_one_safe_cell(self):
+        hostile_path = "evil\n| forged | ` \x1b[31m <img src=x>"
+        finding = Finding("MTL001", "Process execution", "high", hostile_path, "Review the script.")
+        report = markdown_report([finding], hostile_path)
+        finding_table = report.split("## Findings", 1)[1]
+        rows = [line for line in finding_table.splitlines() if line.startswith("|")]
+        self.assertEqual(len(rows), 3)  # header, separator, and one finding
+        self.assertNotIn("\x1b", report)
+        self.assertNotIn("<img", report)
+        self.assertNotIn("evil\n| forged", report)
+        self.assertIn(r"evil&#92;n&#124; forged", report)
 
     def test_sarif_tool_version_matches_package(self):
         from mod_threat_lens import __version__

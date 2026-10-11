@@ -1,0 +1,64 @@
+name: Release Mod Threat Lens
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Run tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+      - name: Check versions and compile
+        shell: bash
+        run: |
+          expected="${GITHUB_REF_NAME#v}"
+          test "$(cat VERSION)" = "$expected"
+          python - "$expected" <<'PY'
+          import sys
+          import tomllib
+          from pathlib import Path
+          sys.path.insert(0, "src")
+          from mod_threat_lens import __version__
+          version = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          assert version == sys.argv[1] == __version__, (version, __version__, sys.argv[1])
+          PY
+          python -m compileall -q src tests
+      - name: Build archive and checksum
+        shell: bash
+        run: |
+          mkdir -p dist
+          archive="mod-threat-lens-${GITHUB_REF_NAME}.zip"
+          git archive --format=zip --prefix="mod-threat-lens-${GITHUB_REF_NAME}/" HEAD -o "dist/$archive"
+          cd dist
+          sha256sum "$archive" > "$archive.sha256"
+          sha256sum --check "$archive.sha256"
+      - name: Smoke-test release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/mod-threat-lens-release-smoke"
+          mkdir -p "$work/extracted"
+          unzip -q "dist/mod-threat-lens-${GITHUB_REF_NAME}.zip" -d "$work/extracted"
+          source_dir="$work/extracted/mod-threat-lens-${GITHUB_REF_NAME}"
+          python -m venv "$work/venv"
+          "$work/venv/bin/python" -m pip install --disable-pip-version-check "$source_dir"
+          expected="${GITHUB_REF_NAME#v}"
+          actual="$("$work/venv/bin/python" -c 'from importlib.metadata import version; print(version("mod-threat-lens"))')"
+          test "$actual" = "$expected"
+          "$work/venv/bin/mod-threat-lens" --version
+          "$work/venv/bin/mod-threat-lens" scan "$source_dir/examples/fixture-mod" \
+            --format json --output "$work/report.json" --fail-on none
+          "$work/venv/bin/python" -c 'import json,sys; report=json.load(open(sys.argv[1], encoding="utf-8")); assert report["tool"] == "Mod Threat Lens"; assert "findings" in report' "$work/report.json"
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "dist/mod-threat-lens-${GITHUB_REF_NAME}.zip" "dist/mod-threat-lens-${GITHUB_REF_NAME}.zip.sha256" --title "Mod Threat Lens ${GITHUB_REF_NAME}" --generate-notes

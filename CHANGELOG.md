@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-10-11
+
+- Escape control and formatting characters from untrusted filenames in text and Markdown reports; prevents terminal control injection and forged Markdown table rows.
+- Keep SARIF driver version synchronized with package metadata.
+- Add regression coverage for newlines, ANSI escapes, bidi controls, and Markdown delimiters.
+
 ## 0.1.4 - 2026-10-11
 
 - Add a repository-hosted preview of heuristic findings from inert synthetic test strings.

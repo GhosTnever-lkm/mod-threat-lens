@@ -1,10 +1,39 @@
 from __future__ import annotations
 
 import json
+import html
+import unicodedata
 from pathlib import PurePosixPath
 from urllib.parse import quote
 
+from . import __version__
 from .scanner import Finding, RULES, SEVERITY_ORDER
+
+
+def _visible_text(value: str) -> str:
+    """Make control and formatting characters visible instead of executable."""
+    escaped: list[str] = []
+    readable_controls = {"\n": r"\n", "\r": r"\r", "\t": r"\t"}
+    for char in value:
+        if char in readable_controls:
+            escaped.append(readable_controls[char])
+        elif unicodedata.category(char).startswith("C"):
+            codepoint = ord(char)
+            if codepoint <= 0xFF:
+                escaped.append(f"\\x{codepoint:02x}")
+            elif codepoint <= 0xFFFF:
+                escaped.append(f"\\u{codepoint:04x}")
+            else:
+                escaped.append(f"\\U{codepoint:08x}")
+        else:
+            escaped.append(char)
+    return "".join(escaped)
+
+
+def _markdown_cell(value: str) -> str:
+    visible = html.escape(_visible_text(value), quote=False)
+    markdown_chars = {ord(char): f"&#{ord(char)};" for char in r"\|`*_{}[]!#~"}
+    return visible.translate(markdown_chars)
 
 
 def summary(findings: list[Finding]) -> dict[str, int]:
@@ -25,7 +54,7 @@ def json_report(findings: list[Finding], target: str) -> str:
 
 def markdown_report(findings: list[Finding], target: str) -> str:
     counts = summary(findings)
-    lines = ["# Mod Threat Lens report", "", f"Target: `{PurePosixPath(target).name}`", "",
+    lines = ["# Mod Threat Lens report", "", f"Target: {_markdown_cell(PurePosixPath(target).name)}", "",
              "This heuristic report flags review signals; it does not determine whether a mod is malware.", "",
              "| Severity | Findings |", "|:--|--:|"]
     lines.extend(f"| {level.title()} | {counts[level]} |" for level in ("critical", "high", "medium", "low", "info"))
@@ -35,9 +64,13 @@ def markdown_report(findings: list[Finding], target: str) -> str:
     else:
         lines += ["| Severity | Rule | File | Line | Finding |", "|:--|:--|:--|--:|:--|"]
         for item in findings:
-            path = item.path.replace("|", "\\|").replace("`", "\\`")
-            title = item.title.replace("|", "\\|")
-            lines.append(f"| {item.severity.title()} | `{item.rule_id}` | `{path}` | {item.line or ''} | {title} |")
+            lines.append("| " + " | ".join((
+                _markdown_cell(item.severity.title()),
+                _markdown_cell(item.rule_id),
+                _markdown_cell(item.path),
+                _markdown_cell(str(item.line or "")),
+                _markdown_cell(item.title),
+            )) + " |")
     lines += ["", "No source snippets or file contents are included in this report.", ""]
     return "\n".join(lines)
 
@@ -64,6 +97,6 @@ def sarif_report(findings: list[Finding]) -> str:
         results.append({"ruleId": item.rule_id, "level": level, "message": {"text": item.message},
                         "locations": [{"physicalLocation": physical}]})
     payload = {"$schema": "https://json.schemastore.org/sarif-2.1.0.json", "version": "2.1.0",
-               "runs": [{"tool": {"driver": {"name": "Mod Threat Lens", "version": "0.1.4", "rules": descriptors}},
+        "runs": [{"tool": {"driver": {"name": "Mod Threat Lens", "version": __version__, "rules": descriptors}},
                          "originalUriBaseIds": {"%SRCROOT%": {"uri": "./"}}, "results": results}]}
     return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"

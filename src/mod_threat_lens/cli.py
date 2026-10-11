@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .formats import json_report, markdown_report, sarif_report
+from .formats import _visible_text, json_report, markdown_report, sarif_report
 from .scanner import SEVERITY_ORDER, ScanConfig, ScanError, scan
 
 
@@ -30,14 +30,17 @@ def parser() -> argparse.ArgumentParser:
 def _text_report(findings, target: str) -> str:
     from .formats import summary
     counts = summary(findings)
-    parts = [f"Mod Threat Lens {__version__} — {Path(target).name}",
+    parts = [f"Mod Threat Lens {__version__} — {_visible_text(Path(target).name)}",
              "Heuristic triage only; this is not a malware verdict.",
              "Findings: " + ", ".join(f"{level}={counts[level]}" for level in ("critical", "high", "medium", "low", "info"))]
     if not findings:
         parts.append("No configured heuristic matched the scanned input.")
     for finding in findings:
         location = f"{finding.path}:{finding.line}" if finding.line else finding.path
-        parts.append(f"[{finding.severity.upper()}] {finding.rule_id} {location} — {finding.title}: {finding.message}")
+        parts.append(
+            f"[{_visible_text(finding.severity.upper())}] {_visible_text(finding.rule_id)} "
+            f"{_visible_text(location)} — {_visible_text(finding.title)}: {_visible_text(finding.message)}"
+        )
     parts.append("No source snippets or file contents are included.")
     return "\n".join(parts) + "\n"
 
@@ -54,7 +57,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         findings = scan(args.target, config)
     except ScanError as exc:
-        print(f"error: {exc}", file=sys.stderr)
+        print(f"error: {_visible_text(str(exc))}", file=sys.stderr)
         return 2
     formats = {"text": _text_report, "json": json_report, "markdown": markdown_report, "sarif": lambda rows, _target: sarif_report(rows)}
     content = formats[args.format](findings, args.target)
