@@ -7,7 +7,6 @@ import stat
 import zipfile
 from dataclasses import asdict, dataclass
 from pathlib import Path, PurePosixPath
-from typing import Iterable
 
 SEVERITY_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
 DEFAULT_IGNORES = {".git", ".hg", ".svn", "__pycache__", "node_modules"}
@@ -22,22 +21,22 @@ MAGIC = (b"MZ", b"\x7fELF", b"\xfe\xed\xfa\xce", b"\xce\xfa\xed\xfe", b"\xcf\xfa
 RULES = [
     {
         "id": "MTL001", "title": "Shell or process execution", "severity": "high",
-        "pattern": re.compile(r"\b(?:os\.execute|io\.popen|subprocess\.(?:run|Popen|call)|child_process\.(?:exec|spawn)|ProcessBuilder\s*\(|Runtime\.getRuntime\(\)\.exec)\s*\(", re.I),
+        "pattern": re.compile(r"\b(?:os\.execute|io\.popen|subprocess\.(?:run|Popen|call)|child_process\.(?:exec|spawn)|ProcessBuilder\s*\(|Runtime\.getRuntime\(\)\.exec)\s*\(", re.IGNORECASE),
         "message": "Code invokes an operating-system process API; review the command and its inputs.",
     },
     {
         "id": "MTL002", "title": "Remote content retrieval", "severity": "medium",
-        "pattern": re.compile(r"\b(?:urllib\.request\.urlopen|requests\.(?:get|post)|fetch\s*\(|WebClient|HttpClient|curl\s+https?://|wget\s+https?://)", re.I),
+        "pattern": re.compile(r"\b(?:urllib\.request\.urlopen|requests\.(?:get|post)|fetch\s*\(|WebClient|HttpClient|curl\s+https?://|wget\s+https?://)", re.IGNORECASE),
         "message": "Code appears to retrieve remote content; verify the destination and whether execution follows.",
     },
     {
         "id": "MTL003", "title": "Dynamic code evaluation", "severity": "medium",
-        "pattern": re.compile(r"\b(?:loadstring|eval|exec)\s*\(", re.I),
+        "pattern": re.compile(r"\b(?:loadstring|eval|exec)\s*\(", re.IGNORECASE),
         "message": "Code dynamically evaluates a string; inspect the source and trust boundary.",
     },
     {
         "id": "MTL004", "title": "Encoded command or payload", "severity": "high",
-        "pattern": re.compile(r"(?:powershell(?:\.exe)?\s+[^\n]{0,80}-(?:enc|encodedcommand)\b|[A-Za-z0-9+/]{160,}={0,2})", re.I),
+        "pattern": re.compile(r"(?:powershell(?:\.exe)?\s+[^\n]{0,80}-(?:enc|encodedcommand)\b|[A-Za-z0-9+/]{160,}={0,2})", re.IGNORECASE),
         "message": "An encoded command or unusually long base64-like string was found; confirm it is expected.",
     },
 ]
@@ -178,7 +177,6 @@ def _scan_zip(path: Path, config: ScanConfig) -> list[Finding]:
 
 def _scan_directory(path: Path, config: ScanConfig) -> list[Finding]:
     findings: list[Finding] = []
-    root = path.resolve()
     stack = [path]
     seen_files = 0
     total = 0
