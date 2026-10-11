@@ -103,6 +103,26 @@ class ScannerTests(unittest.TestCase):
         self.assertNotIn("evil\n| forged", report)
         self.assertIn(r"evil&#92;n&#124; forged", report)
 
+    def test_invisible_unicode_is_visible_or_json_escaped_in_every_format(self):
+        hostile = "mod\u202eexe.zip\u2028line\u2029end\u0085tail"
+        finding = Finding("MTL001", "Review\u202eTitle", "high", hostile,
+                          "Message\u202evalue\u2028line\u2029end\u0085tail")
+        text = __import__("mod_threat_lens.cli", fromlist=["_text_report"])._text_report([finding], hostile)
+        markdown = markdown_report([finding], hostile)
+        json_text = json_report([finding], hostile)
+        sarif = sarif_report([finding])
+        for output in (text, markdown, json_text, sarif):
+            for invisible in ("\u202e", "\u2028", "\u2029", "\u0085"):
+                self.assertNotIn(invisible, output.casefold())
+        self.assertIn(r"\u202e", text.casefold())
+        self.assertIn("2028", markdown.casefold())
+        self.assertIn("2029", markdown.casefold())
+        self.assertIn(r"\u202e", json_text.casefold())
+        self.assertIn(r"\u2028", sarif.casefold())
+        parsed = json.loads(json_text)
+        self.assertEqual(parsed["target"], hostile)
+        self.assertEqual(parsed["findings"][0]["path"], hostile)
+
     def test_sarif_tool_version_matches_package(self):
         from mod_threat_lens import __version__
         document = json.loads(sarif_report([]))

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6 - 2026-10-11
+
+- Escape Unicode line and paragraph separators as visible sequences in text and Markdown reports.
+- Emit JSON and SARIF with Unicode escapes so bidi/C1/line-separator characters cannot spoof rendered artifacts while parsers recover the original values.
+- Add cross-format hostile Unicode regression coverage.
+
 ## 0.1.5 - 2026-10-11
 
 - Escape control and formatting characters from untrusted filenames in text and Markdown reports; prevents terminal control injection and forged Markdown table rows.

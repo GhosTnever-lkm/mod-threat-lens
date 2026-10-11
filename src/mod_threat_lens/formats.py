@@ -17,7 +17,7 @@ def _visible_text(value: str) -> str:
     for char in value:
         if char in readable_controls:
             escaped.append(readable_controls[char])
-        elif unicodedata.category(char).startswith("C"):
+        elif unicodedata.category(char).startswith("C") or unicodedata.category(char) in {"Zl", "Zp"}:
             codepoint = ord(char)
             if codepoint <= 0xFF:
                 escaped.append(f"\\x{codepoint:02x}")
@@ -49,7 +49,7 @@ def json_report(findings: list[Finding], target: str) -> str:
         "summary": summary(findings),
         "findings": [finding.to_dict() for finding in findings],
     }
-    return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+    return json.dumps(payload, ensure_ascii=True, indent=2) + "\n"
 
 
 def markdown_report(findings: list[Finding], target: str) -> str:
@@ -99,4 +99,4 @@ def sarif_report(findings: list[Finding]) -> str:
     payload = {"$schema": "https://json.schemastore.org/sarif-2.1.0.json", "version": "2.1.0",
         "runs": [{"tool": {"driver": {"name": "Mod Threat Lens", "version": __version__, "rules": descriptors}},
                          "originalUriBaseIds": {"%SRCROOT%": {"uri": "./"}}, "results": results}]}
-    return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+    return json.dumps(payload, ensure_ascii=True, indent=2) + "\n"

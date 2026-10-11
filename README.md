@@ -23,7 +23,7 @@ Mod authors and players often receive source folders or ZIPs that contain execut
 - ZIP path traversal, duplicate paths, symbolic links, extreme compression ratios, and configured scan limits.
 - Folder/file symbolic links are never followed. ZIPs are inspected in place and never extracted.
 
-Reports include relative paths, rule IDs, severity, and line numbers where available. Text and Markdown output visibly escapes control characters in filenames to prevent terminal and table injection. Reports **never include source snippets or file contents**.
+Reports include relative paths, rule IDs, severity, and line numbers where available. Text and Markdown visibly escape control, bidi, and Unicode line/paragraph separators. JSON and SARIF use Unicode escapes that preserve parsed values, keeping invisible characters from spoofing reports. Reports **never include source snippets or file contents**.
 
 ## Quick start
 
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.5
+      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.6
         with:
           scan-path: ./
           fail-on: high
