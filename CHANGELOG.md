@@ -3,6 +3,8 @@
 ## 0.1.8 - 2026-10-11
 
 - Fix the CI workflow on Windows: `PYTHONPATH=src` inline prefixes are not valid in PowerShell; the variable is now set via step `env:`.
+- Skip the control-character filename test on Windows, where such file names cannot exist; the escaping itself stays covered by the report-level test.
+- Clean up ruff findings: import order, deprecated `typing.Iterable`, `re.I` aliases, and a dead variable.
 
 ## 0.1.7 - 2026-10-11
 
