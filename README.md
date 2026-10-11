@@ -4,6 +4,10 @@
 
 [![CI](https://github.com/GhosTnever-lkm/mod-threat-lens/actions/workflows/ci.yml/badge.svg)](https://github.com/GhosTnever-lkm/mod-threat-lens/actions/workflows/ci.yml) [![Latest release](https://img.shields.io/github/v/release/GhosTnever-lkm/mod-threat-lens)](https://github.com/GhosTnever-lkm/mod-threat-lens/releases) [![License](https://img.shields.io/github/license/GhosTnever-lkm/mod-threat-lens)](LICENSE)
 
+![Sample Mod Threat Lens report preview using inert synthetic test strings](docs/report-preview.png)
+
+*Example findings from synthetic strings that are scanned but never executed. Heuristic signals require manual review and are not a malware verdict.*
+
 > **Important:** Mod Threat Lens is a heuristic review aid—not antivirus, a sandbox, or a malware verdict. Findings can be false positives; a clean scan does not prove a mod is safe. Review source code and only install mods from sources you trust.
 
 ## Why it exists
@@ -66,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.3
+      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.4
         with:
           scan-path: ./
           fail-on: high

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 - 2026-10-11
+
+- Add a repository-hosted preview of heuristic findings from inert synthetic test strings.
+- Update the composite Action example and align the package and SARIF versions.
+
 ## 0.1.3 - 2026-10-11
 
 - Update checkout, setup-python, and upload-artifact references to supported v7 majors.
