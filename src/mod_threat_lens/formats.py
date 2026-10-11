@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import json
 import html
+import json
 import unicodedata
 from pathlib import PurePosixPath
 from urllib.parse import quote
 
 from . import __version__
-from .scanner import Finding, RULES, SEVERITY_ORDER
+from .scanner import RULES, SEVERITY_ORDER, Finding
 
 
 def _visible_text(value: str) -> str:
