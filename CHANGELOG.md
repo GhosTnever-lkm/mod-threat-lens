@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8 - 2026-10-11
+
+- Fix the CI workflow on Windows: `PYTHONPATH=src` inline prefixes are not valid in PowerShell; the variable is now set via step `env:`.
+
 ## 0.1.7 - 2026-10-11
 
 - CI now also runs the test suite on Windows (windows-latest), not only Ubuntu.
