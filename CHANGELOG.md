@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.9 - 2026-10-12
+
+- Synchronize the CLI/SARIF version, release metadata, and VERSION file to v0.1.9; pin the GitHub Actions example to this release.
+- Add a regression that verifies the package, pyproject, and VERSION values stay aligned.
+
 ## 0.1.8 - 2026-10-11
 
 - Fix the CI workflow on Windows: `PYTHONPATH=src` inline prefixes are not valid in PowerShell; the variable is now set via step `env:`.

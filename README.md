@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.6
+      - uses: GhosTnever-lkm/mod-threat-lens@v0.1.9
         with:
           scan-path: ./
           fail-on: high

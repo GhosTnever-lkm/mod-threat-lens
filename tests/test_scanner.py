@@ -130,6 +130,18 @@ class ScannerTests(unittest.TestCase):
         document = json.loads(sarif_report([]))
         self.assertEqual(document["runs"][0]["tool"]["driver"]["version"], __version__)
 
+    def test_package_version_matches_release_metadata(self):
+        import re
+        from pathlib import Path
+        from mod_threat_lens import __version__
+
+        root = Path(__file__).resolve().parents[1]
+        self.assertEqual((root / "VERSION").read_text(encoding="utf-8").strip(), __version__)
+        metadata = (root / "pyproject.toml").read_text(encoding="utf-8")
+        declared = re.search(r'^version\s*=\s*"([^"]+)"\s*$', metadata, re.MULTILINE)
+        self.assertIsNotNone(declared)
+        self.assertEqual(declared.group(1), __version__)
+
     def test_scan_limits_are_validated(self):
         with tempfile.TemporaryDirectory() as tmp:
             result = main(["scan", tmp, "--max-files", "0"])
