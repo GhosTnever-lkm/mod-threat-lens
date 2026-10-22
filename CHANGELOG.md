@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.1.10 - 2026-10-23
 
 - Enforce the configured total input-size limit when scanning a single file directly.
 - Add a regression proving oversized single-file input is skipped before content inspection.
+- Keep the CLI, package metadata, VERSION file, and GitHub Actions example synchronized at v0.1.10.
 
 ## 0.1.9 - 2026-10-12
 
