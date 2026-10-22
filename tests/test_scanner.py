@@ -147,6 +147,14 @@ class ScannerTests(unittest.TestCase):
             result = main(["scan", tmp, "--max-files", "0"])
         self.assertEqual(result, 2)
 
+    def test_single_file_obeys_total_size_limit_without_scanning_content(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / "script.lua"
+            target.write_text("os.execute('should not be inspected')", encoding="utf-8")
+            findings = scan(target, ScanConfig(max_file_bytes=1024, max_total_bytes=4))
+        self.assertEqual([finding.rule_id for finding in findings], ["MTL008"])
+        self.assertIn("total scan limit", findings[0].message)
+
     def test_scan_respects_exclusion_glob(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
