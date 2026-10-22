@@ -238,9 +238,10 @@ def scan(target: str | Path, config: ScanConfig | None = None) -> list[Finding]:
         findings = _scan_directory(path, config)
     elif path.is_file():
         try:
-            if path.stat().st_size > config.max_file_bytes:
+            size = path.stat().st_size
+            if size > config.max_file_bytes or size > config.max_total_bytes:
                 findings = [_finding("MTL008", "Scan size limit exceeded", "high", path.name,
-                                     "File exceeds the configured per-file scan limit; content was not read.")]
+                                     "File exceeds the configured per-file or total scan limit; content was not read.")]
             else:
                 findings = _inspect_file(path.read_bytes(), path.name)
         except OSError as exc:

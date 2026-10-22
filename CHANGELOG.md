@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Enforce the configured total input-size limit when scanning a single file directly.
+- Add a regression proving oversized single-file input is skipped before content inspection.
+
 ## 0.1.9 - 2026-10-12
 
 - Synchronize the CLI/SARIF version, release metadata, and VERSION file to v0.1.9; pin the GitHub Actions example to this release.
