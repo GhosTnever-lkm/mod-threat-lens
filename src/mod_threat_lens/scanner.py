@@ -88,8 +88,9 @@ def _scan_text(data: bytes, path: str) -> list[Finding]:
     findings: list[Finding] = []
     matched: set[str] = set()
     for number, line in enumerate(text.splitlines(), start=1):
-        # Cap work on pathological single lines while still checking ordinary source.
-        candidate = line[:16_384]
+        # Per-file input is already bounded by ScanConfig; scan the full line so
+        # a long minified or generated line cannot hide a signal after a prefix.
+        candidate = line
         for rule in RULES:
             if rule["id"] not in matched and rule["pattern"].search(candidate):
                 findings.append(_finding(rule["id"], rule["title"], rule["severity"], path, rule["message"], number))

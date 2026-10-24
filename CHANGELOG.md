@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.11 - 2026-10-25
+
+- Scan full lines within the existing per-file size limit so heuristic matches after long prefixes are not silently skipped.
+- Add a regression for a shell-execution signal after a 16 KiB whitespace prefix.
+- Synchronize the CLI, package metadata, VERSION file, and GitHub Actions example at v0.1.11.
+
 ## 0.1.10 - 2026-10-23
 
 - Enforce the configured total input-size limit when scanning a single file directly.

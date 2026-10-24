@@ -22,6 +22,14 @@ class ScannerTests(unittest.TestCase):
         item = next(f for f in findings if f.rule_id == "MTL001")
         self.assertEqual((item.path, item.line, item.severity), ("common/init.lua", 2, "high"))
 
+    def test_shell_execution_after_long_line_prefix_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "generated.lua").write_text(" " * 16_384 + "os.execute(command)", encoding="utf-8")
+            findings = scan(root)
+        item = next(f for f in findings if f.rule_id == "MTL001")
+        self.assertEqual((item.path, item.line), ("generated.lua", 1))
+
     def test_benign_fixture_has_no_findings(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
